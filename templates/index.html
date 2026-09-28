@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Claim Verification — Submit Claim</title>
+  <meta name="description" content="Submit your insurance claim for AI-powered verification with fraud detection and policy analysis.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --surface2:#21262d;
+      --border:  #30363d;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --blue:    #58a6ff;
+      --blue2:   #1f6feb;
+      --radius:  10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    header .logo { font-size: 1.2rem; font-weight: 700; color: var(--blue); }
+    header nav { margin-left: auto; }
+    header nav a {
+      color: var(--muted); text-decoration: none; font-size: .875rem;
+      padding: .4rem .9rem; border-radius: 6px; transition: background .2s;
+    }
+    header nav a:hover { background: var(--surface2); color: var(--text); }
+
+    .hero {
+      text-align: center; padding: 3rem 1rem 1.5rem;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 700; }
+    .hero p  { color: var(--muted); margin-top: .5rem; }
+
+    main { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+
+    .section-label {
+      font-size: .65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--muted);
+      margin: 1.5rem 0 .75rem;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 540px) { .form-row { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: .4rem; }
+    label  { font-size: .8rem; color: var(--muted); }
+
+    input[type=text],
+    input[type=number],
+    input[type=file],
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: .6rem .9rem;
+      font-size: .9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    input:focus, select:focus { border-color: var(--blue); }
+    input[type=file] { cursor: pointer; }
+    select option { background: var(--surface2); }
+
+    hr {
+      border: none; border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .submit-btn {
+      display: block; width: 100%;
+      background: var(--blue2);
+      color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: .85rem;
+      font-size: 1rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; margin-top: 1.5rem;
+      transition: background .2s, transform .1s;
+    }
+    .submit-btn:hover   { background: var(--blue); }
+    .submit-btn:active  { transform: scale(.98); }
+
+    .view-link {
+      display: block; text-align: center; margin-top: 1rem;
+      color: var(--muted); font-size: .8rem; text-decoration: none;
+    }
+    .view-link:hover { color: var(--blue); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🛡️ InsureVerify</span>
+  <nav><a href="/claims">View Claims</a></nav>
+</header>
+
+<div class="hero">
+  <h1>Insurance Claim Verification</h1>
+  <p>AI-powered fraud detection &amp; deterministic policy analysis</p>
+</div>
+
+<main>
+  <div class="card">
+    <form action="/predict" method="POST" enctype="multipart/form-data">
+
+      <div class="section-label">Personal Information</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required placeholder="e.g. Abdullah">
+        </div>
+        <div class="field">
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" required min="1" max="120" placeholder="e.g. 35">
+        </div>
+        <div class="field">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="insurance">Insurance Type</label>
+          <select id="insurance" name="insurance">
+            <option>Health</option>
+            <option>Life</option>
+            <option>Vehicle</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Policy &amp; Claim Details</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="policy">Policy Number</label>
+          <input type="text" id="policy" name="policy" required placeholder="e.g. POL1001">
+        </div>
+        <div class="field">
+          <label for="hospital">Hospital Name</label>
+          <input type="text" id="hospital" name="hospital" required placeholder="e.g. Apollo Hospital">
+        </div>
+        <div class="field">
+          <label for="disease">Disease / Procedure</label>
+          <input type="text" id="disease" name="disease" required placeholder="e.g. hand surgery">
+        </div>
+        <div class="field">
+          <label for="amount">Claim Amount (₹)</label>
+          <input type="number" id="amount" name="amount" required min="1" placeholder="e.g. 100000">
+        </div>
+        <div class="field">
+          <label for="previous_claims">Previous Claims (self-reported)</label>
+          <input type="number" id="previous_claims" name="previous_claims" value="0" min="0">
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="section-label">Upload Documents</div>
+      <div class="form-row">
+        <div class="field">
+          <label for="medical_report">Medical Report (PDF/TXT)</label>
+          <input type="file" id="medical_report" name="medical_report" required accept=".pdf,.txt,.csv">
+        </div>
+        <div class="field">
+          <label for="hospital_bill">Hospital Bill (PDF/TXT)</label>
+          <input type="file" id="hospital_bill" name="hospital_bill" required accept=".pdf,.txt,.csv">
+        </div>
+        <div class="field">
+          <label for="policy_pdf">Insurance Policy PDF</label>
+          <input type="file" id="policy_pdf" name="policy_pdf" required accept=".pdf">
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">🔍 Analyse Claim</button>
+    </form>
+  </div>
+  <a href="/claims" class="view-link">View all previous claim records →</a>
+</main>
+
+</body>
+</html>

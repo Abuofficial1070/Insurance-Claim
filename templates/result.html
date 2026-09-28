@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claim Result — Insurance Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --surface2:  #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --green:     #3fb950;
+      --green-bg:  #0d2818;
+      --amber:     #d29922;
+      --amber-bg:  #2d2006;
+      --red:       #f85149;
+      --red-bg:    #2d0a0a;
+      --blue:      #58a6ff;
+      --blue-bg:   #0c2d55;
+      --purple:    #bc8cff;
+      --radius:    12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ---- top bar ---- */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    header .logo { font-size: 1.2rem; font-weight: 700; color: var(--blue); }
+    header nav { margin-left: auto; display: flex; gap: 1rem; }
+    header nav a {
+      color: var(--muted); text-decoration: none; font-size: .875rem;
+      padding: .4rem .9rem; border-radius: 6px; transition: background .2s;
+    }
+    header nav a:hover { background: var(--surface2); color: var(--text); }
+
+    /* ---- main ---- */
+    main { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    /* ---- decision banner ---- */
+    .decision-banner {
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      border: 1.5px solid;
+      animation: fadeSlide .5s ease;
+    }
+    .decision-banner.approved  { background: var(--green-bg);  border-color: var(--green);  }
+    .decision-banner.review    { background: var(--amber-bg);  border-color: var(--amber);  }
+    .decision-banner.rejected  { background: var(--red-bg);    border-color: var(--red);    }
+    .decision-banner .verdict  { font-size: 2.2rem; font-weight: 700; letter-spacing: .04em; }
+    .decision-banner.approved  .verdict { color: var(--green); }
+    .decision-banner.review    .verdict { color: var(--amber); }
+    .decision-banner.rejected  .verdict { color: var(--red);   }
+    .decision-banner .reason   { margin-top: .6rem; color: var(--muted); font-size: .9rem; max-width: 640px; margin-inline: auto; }
+
+    /* ---- section card ---- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-title {
+      font-size: .7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--muted);
+      margin-bottom: 1rem; padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ---- kv grid ---- */
+    .kv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .75rem; }
+    .kv { background: var(--surface2); border-radius: 8px; padding: .75rem 1rem; }
+    .kv .label { font-size: .7rem; color: var(--muted); margin-bottom: .25rem; }
+    .kv .value { font-size: .95rem; font-weight: 500; }
+
+    /* ---- pills ---- */
+    .pill {
+      display: inline-block; font-size: .72rem; font-weight: 600;
+      padding: .2rem .65rem; border-radius: 99px; margin: .15rem;
+    }
+    .pill-ok    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+    .pill-warn  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber); }
+    .pill-bad   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red); }
+    .pill-na    { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ---- risk meter ---- */
+    .risk-meter { margin-top: .75rem; }
+    .risk-bar-track {
+      height: 10px; border-radius: 99px;
+      background: linear-gradient(90deg,#3fb950,#d29922,#f85149);
+      position: relative;
+    }
+    .risk-needle {
+      position: absolute; top: -4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: white; border: 3px solid var(--bg);
+      transform: translateX(-50%);
+      transition: left .8s cubic-bezier(.4,0,.2,1);
+    }
+    .risk-label { font-size: 1.6rem; font-weight: 700; margin-top: .5rem; }
+    .risk-pct   { font-size: .85rem; color: var(--muted); }
+
+    /* ---- flags ---- */
+    .flag-item {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--surface2); border-radius: 8px;
+      padding: .6rem .9rem; margin-bottom: .5rem;
+      border-left: 3px solid var(--amber); font-size: .875rem;
+    }
+    .flag-item .icon { font-size: 1rem; }
+    .no-flags { color: var(--green); font-size: .875rem; }
+
+    /* ---- doc checks ---- */
+    .check-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .875rem;
+    }
+    .check-row:last-child { border-bottom: none; }
+
+    /* ---- analysis pre ---- */
+    .analysis-box {
+      background: var(--surface2); border-radius: 8px;
+      padding: 1.25rem; font-size: .82rem; line-height: 1.7;
+      white-space: pre-wrap; color: var(--text);
+      max-height: 600px; overflow-y: auto;
+    }
+
+    /* ---- animations ---- */
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card { animation: fadeSlide .4s ease; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🛡️ InsureVerify</span>
+  <nav>
+    <a href="/">New Claim</a>
+    <a href="/claims">View All Claims</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ================================================================
+       DECISION BANNER
+       ================================================================ -->
+  {% if final_decision == "APPROVED" %}
+  <div class="decision-banner approved">
+    <div class="verdict">✅ APPROVED</div>
+    <p class="reason">{{ decision_reason }}</p>
+  </div>
+  {% elif final_decision == "REJECTED" %}
+  <div class="decision-banner rejected">
+    <div class="verdict">❌ REJECTED</div>
+    <p class="reason">{{ decision_reason }}</p>
+  </div>
+  {% else %}
+  <div class="decision-banner review">
+    <div class="verdict">⚠️ MANUAL REVIEW</div>
+    <p class="reason">{{ decision_reason }}</p>
+  </div>
+  {% endif %}
+
+  <!-- ================================================================
+       CLAIM DETAILS
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">Claim Details</div>
+    <div class="kv-grid">
+      <div class="kv"><div class="label">Name</div><div class="value">{{ name }}</div></div>
+      <div class="kv"><div class="label">Policy Number</div><div class="value">{{ policy }}</div></div>
+      <div class="kv"><div class="label">Hospital</div><div class="value">{{ hospital }}</div></div>
+      <div class="kv"><div class="label">Disease / Procedure</div><div class="value">{{ disease }}</div></div>
+      <div class="kv"><div class="label">Claim Amount</div><div class="value">₹{{ amount }}</div></div>
+      <div class="kv"><div class="label">Age</div><div class="value">{{ age }}</div></div>
+      <div class="kv"><div class="label">Gender</div><div class="value">{{ gender }}</div></div>
+      <div class="kv"><div class="label">Insurance Type</div><div class="value">{{ insurance }}</div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       FRAUD RISK ANALYSIS
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">Fraud Risk Analysis (ML Model)</div>
+    <div class="risk-meter">
+      <div class="risk-bar-track">
+        <div class="risk-needle" id="needle"></div>
+      </div>
+    </div>
+    <div class="risk-label" id="riskLabel">{{ risk_level }}</div>
+    <div class="risk-pct">Fraud Probability: <strong>{{ fraud_pct }}</strong></div>
+    <script>
+      const pct = {{ (fraud_probability * 100)|round(2) }};
+      document.getElementById("needle").style.left = Math.min(pct, 99) + "%";
+      const lvl = "{{ risk_level }}";
+      const lel = document.getElementById("riskLabel");
+      lel.style.color = lvl.includes("LOW") ? "var(--green)"
+                      : lvl.includes("MEDIUM") ? "var(--amber)"
+                      : "var(--red)";
+    </script>
+  </div>
+
+  <!-- ================================================================
+       RISK FLAGS
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">Risk Flags</div>
+    {% if risk_flags %}
+      {% for flag in risk_flags %}
+      <div class="flag-item">
+        <span class="icon">⚠️</span>
+        <span>{{ flag }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="no-flags">✅ No risk flags raised.</p>
+    {% endif %}
+  </div>
+
+  <!-- ================================================================
+       CLAIM HISTORY
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">Claim History (Authoritative — from Database)</div>
+    <div class="kv-grid">
+      <div class="kv">
+        <div class="label">Actual Previous Claims (DB)</div>
+        <div class="value">{{ history.previous_claim_count }}</div>
+      </div>
+      <div class="kv">
+        <div class="label">Entered by User</div>
+        <div class="value">{{ history.entered_previous_claims }}</div>
+      </div>
+      <div class="kv">
+        <div class="label">History Mismatch</div>
+        <div class="value">
+          {% if history.claim_history_mismatch %}
+            <span class="pill pill-warn">⚠ MISMATCH</span>
+          {% else %}
+            <span class="pill pill-ok">✓ Match</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="kv"><div class="label">Claims (last 30 days)</div><div class="value">{{ history.claims_last_30_days }}</div></div>
+      <div class="kv"><div class="label">Claims (last 90 days)</div><div class="value">{{ history.claims_last_90_days }}</div></div>
+      <div class="kv"><div class="label">Claims (last year)</div><div class="value">{{ history.claims_last_1_year }}</div></div>
+      <div class="kv"><div class="label">Same Disease</div><div class="value">{{ history.same_disease_claim_count }} time(s)</div></div>
+      <div class="kv"><div class="label">Same Hospital</div><div class="value">{{ history.same_hospital_claim_count }} time(s)</div></div>
+      <div class="kv"><div class="label">Similar Claims</div><div class="value">{{ history.duplicate_or_similar_claim_count }}</div></div>
+      <div class="kv"><div class="label">Avg Previous Amount</div><div class="value">₹{{ history.average_previous_claim_amount }}</div></div>
+      <div class="kv">
+        <div class="label">High Frequency Flag</div>
+        <div class="value">
+          {% if history.high_claim_frequency %}
+            <span class="pill pill-warn">⚠ High Frequency</span>
+          {% else %}
+            <span class="pill pill-ok">✓ Normal</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       POLICY VERIFICATION
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">Policy Verification (Facts Extracted from PDF Only)</div>
+
+    {% macro fact_pill(value) %}
+      {% if value == True or value == 'True' %}
+        <span class="pill pill-ok">✓ Yes</span>
+      {% elif value == False or value == 'False' %}
+        <span class="pill pill-bad">✗ No</span>
+      {% else %}
+        <span class="pill pill-na">— Not specified</span>
+      {% endif %}
+    {% endmacro %}
+
+    <div class="check-row"><span>Policy Active</span>            {{ fact_pill(policy_facts.policy_active) }}</div>
+    <div class="check-row"><span>Disease Covered</span>          {{ fact_pill(policy_facts.disease_covered) }}</div>
+    <div class="check-row"><span>Hospital In Network</span>      {{ fact_pill(policy_facts.hospital_covered) }}</div>
+    <div class="check-row"><span>Waiting Period Satisfied</span> {{ fact_pill(policy_facts.waiting_period_satisfied) }}</div>
+    <div class="check-row">
+      <span>Coverage Limit</span>
+      <span>{{ policy_facts.coverage_limit if policy_facts.coverage_limit else '— Not specified in policy' }}</span>
+    </div>
+    {% if policy_facts.exclusions_note %}
+    <div class="check-row">
+      <span>Exclusions Note</span>
+      <span style="color:var(--muted);font-size:.8rem;max-width:60%;text-align:right;">{{ policy_facts.exclusions_note }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ================================================================
+       DOCUMENT VERIFICATION
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">Document Verification</div>
+
+    {% macro doc_pill(value) %}
+      {% if value == True %}
+        <span class="pill pill-ok">✓ OK</span>
+      {% elif value == False %}
+        <span class="pill pill-bad">✗ Mismatch</span>
+      {% else %}
+        <span class="pill pill-na">— Could not verify</span>
+      {% endif %}
+    {% endmacro %}
+
+    <div class="check-row"><span>Medical Report Present</span>  {{ doc_pill(documents.medical_report_present) }}</div>
+    <div class="check-row"><span>Hospital Bill Present</span>   {{ doc_pill(documents.hospital_bill_present) }}</div>
+    <div class="check-row"><span>Patient Name Match</span>      {{ doc_pill(documents.patient_match) }}</div>
+    <div class="check-row"><span>Hospital Match</span>          {{ doc_pill(documents.hospital_match) }}</div>
+    <div class="check-row"><span>Disease / Diagnosis Match</span>{{ doc_pill(documents.disease_match) }}</div>
+    <div class="check-row"><span>Claim Amount Match</span>      {{ doc_pill(documents.amount_match) }}</div>
+    <div class="check-row">
+      <span>Overall Document Status</span>
+      {% if documents.document_verified %}
+        <span class="pill pill-ok">✓ Verified</span>
+      {% elif documents.document_mismatch %}
+        <span class="pill pill-bad">✗ Mismatch Found</span>
+      {% else %}
+        <span class="pill pill-warn">⚠ Incomplete Verification</span>
+      {% endif %}
+    </div>
+    <div style="margin-top:.75rem;font-size:.75rem;color:var(--muted);">
+      Files: {{ medical }} | {{ bill }} | {{ policy_file }}
+    </div>
+  </div>
+
+  <!-- ================================================================
+       AI EXPLANATION (Gemini — explanatory only)
+       ================================================================ -->
+  <div class="card">
+    <div class="card-title">AI Explanation (Gemini — Explanatory Only, Decision is Fixed)</div>
+    <div class="analysis-box">{{ analysis }}</div>
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Claims — InsureVerify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --surface2:#21262d;
+      --border:  #30363d;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --blue:    #58a6ff;
+      --green:   #3fb950;
+      --amber:   #d29922;
+      --red:     #f85149;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem; display: flex; align-items: center;
+    }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--blue); }
+    nav { margin-left: auto; }
+    nav a {
+      color: var(--muted); text-decoration: none; font-size: .875rem;
+      padding: .4rem .9rem; border-radius: 6px; transition: background .2s;
+    }
+    nav a:hover { background: var(--surface2); color: var(--text); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    thead th {
+      background: var(--surface2); padding: .7rem 1rem;
+      text-align: left; font-size: .65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+    td { padding: .65rem 1rem; vertical-align: middle; }
+
+    .pill {
+      display: inline-block; font-size: .7rem; font-weight: 600;
+      padding: .2rem .6rem; border-radius: 99px;
+    }
+    .pill-approved { background: #0d2818; color: #3fb950; border: 1px solid #3fb950; }
+    .pill-review   { background: #2d2006; color: #d29922; border: 1px solid #d29922; }
+    .pill-rejected { background: #2d0a0a; color: #f85149; border: 1px solid #f85149; }
+    .pill-default  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+    .empty { text-align: center; color: var(--muted); padding: 3rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🛡️ InsureVerify</span>
+  <nav><a href="/">New Claim</a></nav>
+</header>
+
+<main>
+  <h1>Insurance Claim Records</h1>
+
+  {% if claims %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Policy</th>
+          <th>Hospital</th>
+          <th>Disease</th>
+          <th>Amount</th>
+          <th>Fraud Prob.</th>
+          <th>Risk Level</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in claims %}
+        <tr>
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td>{{ row[3] }}</td>
+          <td>{{ row[5] }}</td>
+          <td>{{ row[6] }}</td>
+          <td>₹{{ row[9] }}</td>
+          <td>
+            {% if row[14] is not none %}
+              {{ "%.1f"|format(row[14] * 100) }}%
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>{{ row[15] or row[13] or '—' }}</td>
+          <td>
+            {% set decision = row[16] or '' %}
+            {% if 'APPROVED' in decision %}
+              <span class="pill pill-approved">✅ Approved</span>
+            {% elif 'REJECTED' in decision %}
+              <span class="pill pill-rejected">❌ Rejected</span>
+            {% elif 'MANUAL' in decision or 'REVIEW' in decision %}
+              <span class="pill pill-review">⚠️ Review</span>
+            {% else %}
+              <span class="pill pill-default">{{ decision or '—' }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">No claims submitted yet.</div>
+  {% endif %}
+</main>
+
+</body>
+</html>
